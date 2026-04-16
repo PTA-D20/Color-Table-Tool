@@ -2,32 +2,42 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Color Table Tool</title>
+<title>Color Table Tool - RGBA Theme</title>
 <style>
   body { font-family: sans-serif; padding: 20px; }
   table { border-collapse: collapse; margin-top: 10px; text-align: center; font-family: 'Roboto', sans-serif; font-size: 14px; }
   td { border: 1px solid #ccc; padding: 10px; text-align: center; min-width: 120px; }
   
-  /* Ô chọn màu nhỏ gọn */
-  .color-group { display: flex; align-items: center; justify-content: center; gap: 5px; }
-  .picker { width: 30px !important; height: 30px; padding: 0; border: none; cursor: pointer; background: none; vertical-align: middle; }
-  .hex-input { width: 70px !important; text-align: center; }
+  /* Layout điều khiển Theme */
+  .theme-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; }
+  .alpha-box { display: flex; align-items: center; gap: 5px; border-left: 2px solid #ddd; padding-left: 15px; }
   
+  .picker { width: 35px; height: 35px; padding: 0; border: none; cursor: pointer; background: none; vertical-align: middle; }
+  .hex-input { width: 80px; text-align: center; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+  .alpha-input { width: 45px; text-align: center; padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+  .slider { cursor: pointer; }
+
   .header-label { font-weight: bold; width: 80px; background: #f2f2f2; }
   .preview-text { font-weight: bold; }
-  .controls { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-  textarea { width: 100%; height: 220px; margin-top: 15px; font-family: monospace; }
+  textarea { width: 100%; height: 200px; margin-top: 15px; font-family: monospace; }
+  button { padding: 8px 15px; cursor: pointer; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<div class="controls">
-  <label><strong>Theme:</strong></label>
-  <input type="color" id="theme-picker" class="picker" value="#ffffff" oninput="syncTheme(this, 'theme')">
-  <input id="theme" class="hex-input" value="#ffffff" oninput="syncThemeText(this, 'theme-picker')">
+<div class="theme-controls">
+  <strong>Theme:</strong>
+  <input type="color" id="theme-picker" class="picker" value="#ffffff" oninput="syncTheme('picker')">
+  <input type="text" id="theme-hex" class="hex-input" value="#ffffff" oninput="syncTheme('hex')">
   
-  <button onclick="addColumn()" style="margin-left: 15px;">➕ Thêm cột</button> 
-  <button onclick="generate()" style="cursor: pointer;">Generate Snapshot</button>
+  <div class="alpha-box">
+    <label>Alpha:</label>
+    <input type="range" id="theme-slider" class="slider" min="0" max="1" step="0.01" value="1" oninput="syncTheme('slider')">
+    <input type="number" id="theme-alpha" class="alpha-input" min="0" max="1" step="0.01" value="1" oninput="syncTheme('number')">
+  </div>
+
+  <button onclick="addColumn()" style="margin-left: auto;">➕ Thêm cột</button> 
+  <button onclick="generate()" style="background: #27ae60; color: white; border: none; border-radius: 4px;">Generate Snapshot</button>
 </div>
 
 <table id="tbl">
@@ -41,32 +51,33 @@
   <tr id="row-yellow"></tr>
 </table>
 
-<textarea id="output" placeholder="HTML snapshot sẽ xuất hiện ở đây"></textarea>
+<textarea id="output" placeholder="Mã HTML snapshot sẽ xuất hiện ở đây..."></textarea>
 
 <script>
 let colId = 0;
 
-// Đồng bộ cho Theme
-function syncTheme(picker, textId) {
-    document.getElementById(textId).value = picker.value;
-    render();
-}
-function syncThemeText(text, pickerId) {
-    if(/^#[0-9A-F]{6}$/i.test(text.value)) {
-        document.getElementById(pickerId).value = text.value;
-    }
-    render();
+// Chuyển Hex + Alpha sang RGBA
+function getThemeRgba() {
+    const hex = document.getElementById('theme-hex').value;
+    const alpha = document.getElementById('theme-alpha').value;
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// Đồng bộ cho các ô màu trong bảng
-function sync(picker, textId) {
-    document.getElementById(textId).value = picker.value;
-    render();
-}
-function syncText(text, pickerId) {
-    if(/^#[0-9A-F]{6}$/i.test(text.value)) {
-        document.getElementById(pickerId).value = text.value;
-    }
+// Đồng bộ hóa các thành phần điều khiển Theme
+function syncTheme(type) {
+    const picker = document.getElementById('theme-picker');
+    const hexInput = document.getElementById('theme-hex');
+    const slider = document.getElementById('theme-slider');
+    const numInput = document.getElementById('theme-alpha');
+
+    if (type === 'picker') hexInput.value = picker.value;
+    if (type === 'hex') picker.value = hexInput.value;
+    if (type === 'slider') numInput.value = slider.value;
+    if (type === 'number') slider.value = numInput.value;
+
     render();
 }
 
@@ -76,9 +87,9 @@ function createInputCell(color) {
   const tId = `t${colId}`;
   const td = document.createElement("td");
   td.innerHTML = `
-    <div class="color-group">
-        <input type="color" id="${pId}" class="picker" value="${color}" oninput="sync(this, '${tId}')">
-        <input type="text" id="${tId}" class="hex-input" value="${color}" oninput="syncText(this, '${pId}')">
+    <div style="display:flex; align-items:center; justify-content:center; gap:5px;">
+        <input type="color" id="${pId}" class="picker" style="width:25px; height:25px;" value="${color}" oninput="document.getElementById('${tId}').value=this.value; render()">
+        <input type="text" id="${tId}" class="hex-input" style="width:65px; font-size:12px;" value="${color}" oninput="render()">
     </div>`;
   return td;
 }
@@ -91,14 +102,14 @@ function addColumn() {
 }
 
 function renderRow(renderRowId, inputRowId) {
-  const theme = document.getElementById("theme").value;
+  const themeRgba = getThemeRgba();
   const renderRow = document.getElementById(renderRowId);
-  const inputs = document.querySelectorAll(`#${inputRowId} .hex-input`);
+  const inputs = document.querySelectorAll(`#${inputRowId} input[type="text"]`);
   
   renderRow.innerHTML = "";
   inputs.forEach(inp => {
     const td = document.createElement("td");
-    td.style.background = theme;
+    td.style.background = themeRgba;
     const span = document.createElement("span");
     span.className = "preview-text";
     span.style.color = inp.value;
@@ -115,9 +126,8 @@ function render() {
 }
 
 function generate() {
-  const theme = document.getElementById("theme").value;
+  const themeRgba = getThemeRgba();
   let html = `<table style="border-collapse:collapse; text-align:center; font-family:sans-serif;">\n`;
-
   const configs = [
       {label: 'RED', color: 'red', inputRow: 'row-red-input'},
       {label: 'GREEN', color: 'green', inputRow: 'row-green-input'},
@@ -125,19 +135,15 @@ function generate() {
   ];
 
   configs.forEach(conf => {
-    const inputs = document.querySelectorAll(`#${conf.inputRow} .hex-input`);
-    
-    // Hàng 1: Label + Mã Hex
+    const inputs = document.querySelectorAll(`#${conf.inputRow} input[type="text"]`);
     html += `  <tr>\n    <td rowspan="2" style="border:1px solid #ccc; padding:10px; font-weight:bold; color:${conf.color}; background:#f2f2f2;">${conf.label}</td>\n`;
     inputs.forEach(inp => {
       html += `    <td style="border:1px solid #ccc; padding:10px; font-family:monospace;">${inp.value.toUpperCase()}</td>\n`;
     });
     html += `  </tr>\n`;
-
-    // Hàng 2: Placeholder Render trên nền Theme
     html += `  <tr>\n`;
     inputs.forEach(inp => {
-      html += `    <td style="border:1px solid #ccc; padding:10px; background:${theme};">\n      <span style="color:${inp.value}; font-weight:bold;">Placeholder</span>\n    </td>\n`;
+      html += `    <td style="border:1px solid #ccc; padding:10px; background:${themeRgba};">\n      <span style="color:${inp.value}; font-weight:bold;">Placeholder</span>\n    </td>\n`;
     });
     html += `  </tr>\n`;
   });
@@ -146,7 +152,7 @@ function generate() {
   document.getElementById("output").value = html;
 }
 
-// Khởi tạo mặc định 2 cột
+// Khởi tạo
 addColumn();
 addColumn();
 </script>
