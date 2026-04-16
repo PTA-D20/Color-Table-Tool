@@ -2,9 +2,12 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Color Table Tool - With Delete Column</title>
+<title>Color Table Tool - Pixel Perfect Match</title>
 <style>
-  body { font-family: 'Roboto', sans-serif; padding: 20px; background-color: #f8f9fa; }
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+  /* Style cho bảng điều khiển */
+  body { font-family: 'Roboto', sans-serif; padding: 20px; background-color: #f8f9fa; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   table { border-collapse: collapse; margin-top: 10px; text-align: center; font-size: 14px; background: white; }
   td, th { border: 1px solid #ccc; padding: 12px; text-align: center; min-width: 160px; position: relative; }
   
@@ -13,26 +16,38 @@
   .control-group:first-child { border-left: none; padding-left: 0; }
   
   .picker { width: 30px; height: 30px; padding: 0; border: none; cursor: pointer; background: none; vertical-align: middle; }
-  .hex-input, .label-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; text-align: center; }
-  .label-input { font-weight: bold; background: #fffde7; padding-right: 25px; }
+  .hex-input, .label-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; text-align: center; font-family: monospace; }
+  .label-input { font-family: 'Roboto', sans-serif; font-weight: 500; background: #fffde7; }
   
-  /* Nút xóa cột */
   .btn-del-col {
     position: absolute; top: 2px; right: 2px;
     background: #ff4d4f; color: white; border: none; border-radius: 3px;
     width: 18px; height: 18px; font-size: 10px; cursor: pointer;
-    line-height: 18px; padding: 0; opacity: 0.6; transition: 0.2s;
+    line-height: 18px; padding: 0; opacity: 0.4; transition: 0.2s;
   }
-  .btn-del-col:hover { opacity: 1; background: #d9363e; }
+  .btn-del-col:hover { opacity: 1; }
 
-  .tickers-container { display: flex; flex-direction: column; align-items: flex-start; margin-top: 8px; gap: 4px; width: 100%; padding-left: 10%; }
-  .ticker-wrap { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #555; cursor: pointer; }
+  /* Style hiển thị trên bảng (Live) */
+  .tippy-style-live {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    letter-spacing: 0.1px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .header-label { font-weight: 500; width: 80px; background: #f2f2f2; }
+  textarea { width: 100%; height: 200px; margin-top: 15px; font-family: monospace; padding: 10px; border: 1px solid #ccc; font-size: 12px; background: #222; color: #7fdbff; }
   
-  .tippy-style { font-weight: normal; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
-  .header-label { font-weight: bold; width: 80px; background: #f2f2f2; }
-  textarea { width: 100%; height: 200px; margin-top: 15px; font-family: monospace; padding: 10px; border: 1px solid #ccc; }
-  button { padding: 8px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
+  button { padding: 8px 15px; cursor: pointer; font-weight: 500; border-radius: 4px; border: 1px solid #ccc; }
   .btn-gen { background: #27ae60; color: white; border: none; }
+  
+  .tickers-container { display: flex; flex-direction: column; align-items: flex-start; margin-top: 8px; gap: 4px; width: fit-content; margin-left: auto; margin-right: auto; }
+  .ticker-wrap { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #555; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -41,15 +56,13 @@
   <div class="control-group">
     <strong>Theme:</strong>
     <input type="color" id="theme-picker" class="picker" value="#2d2d2d" oninput="syncTheme('picker')">
-    <input type="text" id="theme-hex" class="hex-input" style="width:70px" value="#2d2d2d" oninput="syncTheme('hex')">
+    <input type="text" id="theme-hex" class="hex-input" style="width:75px" value="#2d2d2d" oninput="syncTheme('hex')">
   </div>
-  
   <div class="control-group">
     <label>Alpha:</label>
     <input type="range" id="theme-slider" min="0" max="1" step="0.01" value="0.9" oninput="syncTheme('slider')">
     <input type="number" id="theme-alpha" style="width:55px" min="0" max="1" step="0.01" value="0.9" oninput="syncTheme('number')">
   </div>
-
   <button onclick="addColumn()" style="margin-left: auto;">➕ Thêm cột</button> 
   <button class="btn-gen" onclick="generate()">Generate Snapshot</button>
 </div>
@@ -64,7 +77,7 @@
   <tr id="row-yellow-render"></tr>
 </table>
 
-<textarea id="output" placeholder="Mã HTML snapshot..."></textarea>
+<textarea id="output" placeholder="Mã HTML snapshot sẽ hiện ở đây..."></textarea>
 
 <script>
 function syncTheme(type) {
@@ -83,38 +96,23 @@ function getThemeRgba() {
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function deleteColumn(index) {
-    // Xóa ô ở hàng Labels
-    document.getElementById("row-labels").deleteCell(index + 1);
-    
-    // Xóa các ô ở 3 nhóm (mỗi nhóm 2 hàng)
-    const rowIds = ['red-input', 'red-render', 'green-input', 'green-render', 'yellow-input', 'yellow-render'];
-    rowIds.forEach(id => {
-        const row = document.getElementById(`row-${id}`);
-        // Đối với hàng input, index thật sự là index+1 vì có ô header label đầu tiên
-        // Đối với hàng render, index khớp chính xác vì không có header label
-        if (id.includes('input')) {
-            row.deleteCell(index + 1);
-        } else {
-            // Khi deleteCell, ta cần kiểm tra xem ô đó có tồn tại không (vì Hidden có thể làm biến mất ô ở hàng render)
-            // Cách an toàn nhất là render lại sau khi xóa ở hàng input
-        }
-    });
+function deleteColumn(btn) {
+    const cell = btn.parentElement;
+    const index = cell.cellIndex;
+    const rows = document.getElementById("tbl").rows;
+    for (let row of rows) {
+        if (row.cells[index]) row.deleteCell(index);
+        else if (row.cells[index-1] && row.id.includes('render')) row.deleteCell(index-1);
+    }
     render();
 }
 
 function addColumn() {
-  const currentIndex = document.getElementById("row-labels").cells.length - 1;
-  
   const tdLabel = document.createElement("td");
-  tdLabel.innerHTML = `
-    <input type="text" class="label-input" value="Label" oninput="render()">
-    <button class="btn-del-col" onclick="deleteColumn(Array.from(this.parentElement.parentElement.children).indexOf(this.parentElement)-1)">✕</button>
-  `;
+  tdLabel.innerHTML = `<input type="text" class="label-input" value="Label" oninput="render()"><button class="btn-del-col" onclick="deleteColumn(this)">✕</button>`;
   document.getElementById("row-labels").appendChild(tdLabel);
 
   const groups = [{id:'red', c:'#ff5252', icon:'✖'}, {id:'green', c:'#23c466', icon:'✔'}, {id:'yellow', c:'#f3bf3d', icon:'●'}];
-
   groups.forEach(g => {
     const td = document.createElement("td");
     td.innerHTML = `
@@ -147,18 +145,16 @@ function render() {
       const showIcon = cell.querySelector('.is-icon').checked;
       const icon = cell.dataset.icon;
       
-      const iconTicker = cell.querySelector('.is-icon').parentElement;
-      iconTicker.style.opacity = isSpecial ? "0.3" : "1";
       cell.querySelector('.is-icon').disabled = isSpecial;
-
+      cell.querySelector('.is-icon').parentElement.style.opacity = isSpecial ? "0.3" : "1";
       cell.rowSpan = isSpecial ? 2 : 1;
 
       if (!isSpecial) {
         const td = document.createElement("td");
         td.style.background = theme;
         td.style.color = hex;
-        const iconSpan = showIcon ? `<span>${icon}</span>` : "";
-        td.innerHTML = `<div class="tippy-style">${iconSpan} <span>Placeholder</span></div>`;
+        const iconSpan = showIcon ? `<span style="font-size:12px; margin-right:8px; line-height:1;">${icon}</span>` : "";
+        td.innerHTML = `<div class="tippy-style-live">${iconSpan}<span style="line-height:1;">Placeholder</span></div>`;
         renderRow.appendChild(td);
       }
     });
@@ -168,32 +164,40 @@ function render() {
 function generate() {
   const theme = getThemeRgba();
   const labels = document.querySelectorAll("#row-labels .label-input");
-  let html = `<table style="border-collapse:collapse; text-align:center; font-family:'Roboto', sans-serif;">\n`;
+  // Thêm font-smoothing trực tiếp vào thẻ table của snapshot
+  let html = `<table style="border-collapse:collapse; text-align:center; font-family:'Roboto', sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;">\n`;
   
-  html += `  <tr><td style="border:1px solid #ccc; padding:10px; font-weight:bold; background:#eee;">TITLE</td>`;
-  labels.forEach(l => html += `<td style="border:1px solid #ccc; padding:10px; font-weight:bold; background:#fffde7;">${l.value}</td>`);
+  html += `  <tr><td style="border:1px solid #ccc; padding:10px; font-weight:500; background:#eee; font-size:14px;">TITLE</td>`;
+  labels.forEach(l => html += `<td style="border:1px solid #ccc; padding:10px; font-weight:500; background:#fffde7; font-size:14px;">${l.value}</td>`);
   html += `</tr>\n`;
 
   const groups = [{l:'FAILED', c:'#ff5252', id:'red', icon:'✖'}, {l:'SUCCESS', c:'#23c466', id:'green', icon:'✔'}, {l:'INDICATOR', c:'#f3bf3d', id:'yellow', icon:'●'}];
   
   groups.forEach(g => {
     const colorCells = document.querySelectorAll(`#row-${g.id}-input td:not(.header-label)`);
-    html += `  <tr><td rowspan="2" style="border:1px solid #ccc; padding:10px; font-weight:bold; color:${g.c}; background:#f2f2f2;">${g.l}</td>`;
+    html += `  <tr><td rowspan="2" style="border:1px solid #ccc; padding:10px; font-weight:500; color:${g.c}; background:#f2f2f2; font-size:14px;">${g.l}</td>`;
+    
     colorCells.forEach(cell => {
       const hex = cell.querySelector('.hex-input').value;
       const isSpec = cell.querySelector('.is-special').checked;
-      if(isSpec) { html += `<td rowspan="2" style="border:1px solid #ccc; padding:10px; background:${theme}; color:white; font-size:14px;">không có thông tin</td>`; }
-      else { html += `<td style="border:1px solid #ccc; padding:8px; font-size:11px; font-family:monospace;">${hex.toUpperCase()}</td>`; }
+      if(isSpec) { 
+          html += `<td rowspan="2" style="border:1px solid #ccc; padding:10px; background:${theme}; color:white; font-size:14px; font-weight:400;">không có thông tin</td>`; 
+      } else { 
+          html += `<td style="border:1px solid #ccc; padding:8px; font-size:11px; font-family:monospace; color:#333;">${hex.toUpperCase()}</td>`; 
+      }
     });
     html += `</tr>\n  <tr>`;
+    
     colorCells.forEach(cell => {
       const hex = cell.querySelector('.hex-input').value;
       const isSpec = cell.querySelector('.is-special').checked;
       const showIcon = cell.querySelector('.is-icon').checked;
       if(!isSpec) {
-        html += `<td style="border:1px solid #ccc; padding:12px; background:${theme}; color:${hex}; font-size:14px;">`;
-        if (showIcon) html += `<span style="margin-right:8px;">${g.icon}</span>`;
-        html += `<b>Placeholder</b></td>`;
+        html += `<td style="border:1px solid #ccc; padding:12px; background:${theme}; color:${hex};">`;
+        // Container đồng bộ style tippy-style-live
+        html += `<div style="display:inline-flex; align-items:center; justify-content:center; font-size:14px; font-weight:400; letter-spacing:0.1px;">`;
+        if (showIcon) html += `<span style="font-size:12px; margin-right:8px; line-height:1;">${g.icon}</span>`;
+        html += `<span style="line-height:1;">Placeholder</span></div></td>`;
       }
     });
     html += `</tr>\n`;
