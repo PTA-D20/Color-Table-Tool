@@ -7,51 +7,38 @@
   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
 
   body { font-family: 'Roboto', sans-serif; padding: 20px; background-color: #f8f9fa; -webkit-font-smoothing: antialiased; }
-  table { border-collapse: collapse; margin-top: 10px; text-align: center; font-size: 14px; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  table { border-collapse: collapse; margin-top: 10px; text-align: center; font-size: 14px; background: white; }
   td, th { border: 1px solid #ccc; padding: 12px; text-align: center; min-width: 160px; position: relative; }
   
-  .theme-controls { 
-    display: flex; align-items: center; gap: 15px; margin-bottom: 20px; 
-    background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; 
-    position: sticky; top: 0; z-index: 100;
-  }
+  .theme-controls { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
   .control-group { display: flex; align-items: center; gap: 8px; border-left: 2px solid #eee; padding-left: 15px; }
   .control-group:first-child { border-left: none; padding-left: 0; }
   
-  .picker { width: 30px; height: 30px; padding: 0; border: 1px solid #ddd; cursor: pointer; background: none; vertical-align: middle; border-radius: 4px; }
+  .picker { width: 30px; height: 30px; padding: 0; border: none; cursor: pointer; background: none; vertical-align: middle; }
   .hex-input, .label-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; text-align: center; font-family: monospace; }
   .label-input { font-family: 'Roboto', sans-serif; font-weight: 500; background: #fffde7; }
-  .row-label-input { background: #f2f2f2; font-weight: 500; color: inherit; width: 85px; border: 1px solid transparent; }
-  .row-label-input:focus { border-color: #aaa; background: #fff; }
+  .row-label-input { background: #f2f2f2; font-weight: 500; color: inherit; width: 80px; }
 
-  /* Delete Button */
   .btn-del {
     position: absolute; top: 2px; right: 2px;
     background: #ff4d4f; color: white; border: none; border-radius: 3px;
     width: 18px; height: 18px; font-size: 10px; cursor: pointer;
-    line-height: 18px; padding: 0; opacity: 0.3; transition: 0.2s;
+    line-height: 18px; padding: 0; opacity: 0.4; transition: 0.2s;
   }
   .btn-del:hover { opacity: 1; }
 
   .tippy-style-live {
     font-family: 'Roboto', sans-serif; font-weight: 400; font-size: 14px;
     display: inline-flex; align-items: center; gap: 8px; justify-content: center;
-    letter-spacing: 0.1px;
+    letter-spacing: 0.1px; -webkit-font-smoothing: antialiased;
   }
 
   .header-label-cell { font-weight: 500; width: 100px; background: #f2f2f2; position: relative; }
-  
-  .output-container { position: relative; margin-top: 15px; }
-  textarea { 
-    width: 100%; height: 200px; font-family: 'Courier New', monospace; 
-    padding: 15px; border: 1px solid #333; background: #1e1e1e; color: #7fdbff; 
-    box-sizing: border-box; border-radius: 4px;
-  }
+  textarea { width: 100%; height: 180px; margin-top: 15px; font-family: monospace; padding: 10px; border: 1px solid #ccc; background: #222; color: #7fdbff; }
   
   button { padding: 8px 15px; cursor: pointer; font-weight: 500; border-radius: 4px; border: 1px solid #ccc; }
   .btn-gen { background: #27ae60; color: white; border: none; }
   .btn-add { background: #3498db; color: white; border: none; }
-  .btn-copy { position: absolute; top: 10px; right: 10px; background: #444; color: #fff; font-size: 11px; }
   
   .tickers-container { display: flex; flex-direction: column; align-items: flex-start; margin-top: 8px; gap: 4px; width: fit-content; margin-left: auto; margin-right: auto; }
   .ticker-wrap { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #555; cursor: pointer; }
@@ -67,26 +54,21 @@
   </div>
   <div class="control-group">
     <label>Alpha:</label>
-    <input type="range" id="theme-slider" min="0" max="1" step="0.01" value="0.90" oninput="syncTheme('slider')">
-    <input type="number" id="theme-alpha" style="width:55px" min="0" max="1" step="0.01" value="0.90" oninput="syncTheme('number')">
+    <input type="range" id="theme-slider" min="0" max="1" step="0.01" value="0.9" oninput="syncTheme('slider')">
+    <input type="number" id="theme-alpha" style="width:55px" min="0" max="1" step="0.01" value="0.9" oninput="syncTheme('number')">
   </div>
   <div style="margin-left: auto; display: flex; gap: 10px;">
-    <button class="btn-add" onclick="addRow()">➕ Add Row</button>
-    <button class="btn-add" onclick="addColumn()">➕ Add Col</button> 
+    <button class="btn-add" onclick="addRow()">➕ Thêm hàng</button>
+    <button class="btn-add" onclick="addColumn()">➕ Thêm cột</button> 
     <button class="btn-gen" onclick="generate()">Generate Snapshot</button>
   </div>
 </div>
 
 <table id="tbl">
-  <tr id="row-labels">
-    <th class="header-label-cell"><input type="text" class="row-label-input" value="TITLE" style="text-align:center; background:transparent;"></th>
-  </tr>
+  <tr id="row-labels"><th class="header-label-cell">TITLE</th></tr>
 </table>
 
-<div class="output-container">
-    <button class="btn-copy" onclick="copyCode()">Copy Code</button>
-    <textarea id="output" placeholder="HTML Snapshot code will appear here..."></textarea>
-</div>
+<textarea id="output" placeholder="Mã HTML snapshot..."></textarea>
 
 <script>
 let rowCount = 0;
@@ -113,11 +95,11 @@ function addColumn() {
     const th = document.createElement("td");
     th.innerHTML = `<input type="text" class="label-input" value="Label" oninput="render()"><button class="btn-del" onclick="deleteColumn(this)">✕</button>`;
     rows[0].appendChild(th);
-
     for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
         if (row.classList.contains('input-row')) {
-            row.appendChild(createInputCell(row.dataset.color));
+            const td = createInputCell(row.dataset.icon, row.dataset.color);
+            row.appendChild(td);
         }
     }
     render();
@@ -127,13 +109,11 @@ function addRow(name = "NEW ROW", color = "#888888", icon = "●") {
     const table = document.getElementById("tbl");
     const colCount = table.rows[0].cells.length - 1;
     const rId = 'row-grp-' + rowCount++;
-
     const rowInput = table.insertRow(-1);
     rowInput.id = rId + '-input';
     rowInput.className = 'input-row';
     rowInput.dataset.icon = icon;
     rowInput.dataset.color = color;
-
     const headCell = document.createElement("td");
     headCell.rowSpan = 2;
     headCell.className = 'header-label-cell';
@@ -144,24 +124,22 @@ function addRow(name = "NEW ROW", color = "#888888", icon = "●") {
         <button class="btn-del" onclick="deleteRow('${rId}')">✕</button>
     `;
     rowInput.appendChild(headCell);
-
     const rowRender = table.insertRow(-1);
     rowRender.id = rId + '-render';
     rowRender.className = 'render-row';
-
     for (let i = 0; i < colCount; i++) {
-        rowInput.appendChild(createInputCell(color));
+        rowInput.appendChild(createInputCell(icon, color));
     }
     render();
 }
 
-function createInputCell(color) {
+function createInputCell(icon, color) {
     const td = document.createElement("td");
     td.innerHTML = `
       <div style="display:flex; flex-direction:column; align-items:center;">
         <div style="display:flex; align-items:center; gap:5px;">
-          <input type="color" class="picker" value="${color}" oninput="this.nextElementSibling.value=this.value.toUpperCase(); render()">
-          <input type="text" class="hex-input" style="width:65px; font-size:11px;" value="${color.toUpperCase()}" oninput="render()">
+          <input type="color" class="picker" value="${color}" oninput="this.nextElementSibling.value=this.value; render()">
+          <input type="text" class="hex-input" style="width:65px; font-size:11px;" value="${color}" oninput="render()">
         </div>
         <div class="tickers-container">
           <label class="ticker-wrap"><input type="checkbox" class="is-special" onchange="render()"> Hidden</label>
@@ -203,41 +181,31 @@ function render() {
                 const td = document.createElement("td");
                 td.style.background = theme;
                 td.style.color = hex;
-                const iconHtml = isIcon ? `<span style="font-size:12px; margin-right:8px;">${icon}</span>` : "";
-                td.innerHTML = `<div class="tippy-style-live">${iconHtml}<span>Placeholder</span></div>`;
+                const iconHtml = isIcon ? `<span style="font-size:12px; margin-right:8px; line-height:1;">${icon}</span>` : "";
+                td.innerHTML = `<div class="tippy-style-live">${iconHtml}<span style="line-height:1;">Placeholder</span></div>`;
                 renderRow.appendChild(td);
             }
         });
     });
 }
 
-function copyCode() {
-    const area = document.getElementById("output");
-    area.select();
-    document.execCommand('copy');
-}
-
 function generate() {
     const theme = getThemeRgba();
-    const themeHex = document.getElementById('theme-hex').value.toUpperCase();
-    const themeAlpha = document.getElementById('theme-alpha').value;
-    const mainTitle = document.querySelector(".header-label-cell input").value;
     const labels = document.querySelectorAll("#row-labels .label-input");
     const totalCols = labels.length + 1;
-
-    let html = `<table style="border-collapse:collapse; text-align:center; font-family:'Roboto', sans-serif; border:1px solid #ccc;">\n`;
+    let html = `<table style="border-collapse:collapse; text-align:center; font-family:'Roboto', sans-serif; -webkit-font-smoothing:antialiased;">\n`;
     
-    // Top Metadata Row
-    html += `  <tr><td colspan="${totalCols}" style="padding:8px 12px; background:#f9f9f9; border:1px solid #ccc; font-size:11px; color:#777; text-align:left;">`;
-    html += `<strong>Theme Info:</strong> Hex: ${themeHex} | Alpha: ${themeAlpha} | RGBA: ${theme}</td></tr>\n`;
+    // --- Dòng thông tin RGBA mới thêm vào ---
+    html += `  <tr><td colspan="${totalCols}" style="text-align:left; padding:5px 10px; font-size:12px; color:#888; border:1px solid #ccc; background:#fafafa;">Theme RGBA: <strong>${theme}</strong></td></tr>\n`;
 
-    // Header Row
-    html += `  <tr><th style="border:1px solid #ccc; padding:10px; font-weight:500; background:#eee; font-size:14px;">${mainTitle}</th>`;
-    labels.forEach(l => html += `<th style="border:1px solid #ccc; padding:10px; font-weight:500; background:#fffde7; font-size:14px;">${l.value}</th>`);
+    // Header
+    html += `  <tr><td style="border:1px solid #ccc; padding:10px; font-weight:500; background:#eee; font-size:14px;">TITLE</td>`;
+    labels.forEach(l => html += `<td style="border:1px solid #ccc; padding:10px; font-weight:500; background:#fffde7; font-size:14px;">${l.value}</td>`);
     html += `</tr>\n`;
 
     // Data Rows
-    document.querySelectorAll('.input-row').forEach(inRow => {
+    const inputRows = document.querySelectorAll('.input-row');
+    inputRows.forEach(inRow => {
         const rowTitle = inRow.querySelector('.row-label-input').value;
         const rowColor = inRow.querySelector('.header-label-cell').style.color;
         const icon = inRow.dataset.icon;
@@ -247,8 +215,8 @@ function generate() {
         colorCells.forEach(cell => {
             const hex = cell.querySelector('.hex-input').value;
             const isSpec = cell.querySelector('.is-special').checked;
-            if(isSpec) html += `<td rowspan="2" style="border:1px solid #ccc; padding:10px; background:${theme}; color:rgba(255,255,255,0.4); font-size:13px; font-style:italic;">No Data</td>`;
-            else html += `<td style="border:1px solid #ccc; padding:5px; font-size:10px; font-family:monospace; color:#888; background:#fafafa;">${hex.toUpperCase()}</td>`;
+            if(isSpec) html += `<td rowspan="2" style="border:1px solid #ccc; padding:10px; background:${theme}; color:white; font-size:14px;">không có thông tin</td>`;
+            else html += `<td style="border:1px solid #ccc; padding:8px; font-size:11px; font-family:monospace; color:#333;">${hex.toUpperCase()}</td>`;
         });
         html += `</tr>\n  <tr>`;
         colorCells.forEach(cell => {
@@ -257,9 +225,9 @@ function generate() {
             const isIcon = cell.querySelector('.is-icon').checked;
             if(!isSpec) {
                 html += `<td style="border:1px solid #ccc; padding:12px; background:${theme}; color:${hex};">`;
-                html += `<div style="display:inline-flex; align-items:center; justify-content:center; font-size:14px;">`;
-                if (isIcon) html += `<span style="margin-right:8px;">${icon}</span>`;
-                html += `<span>Placeholder</span></div></td>`;
+                html += `<div style="display:inline-flex; align-items:center; justify-content:center; font-size:14px; font-weight:400; letter-spacing:0.1px;">`;
+                if (isIcon) html += `<span style="font-size:12px; margin-right:8px; line-height:1;">${icon}</span>`;
+                html += `<span style="line-height:1;">Placeholder</span></div></td>`;
             }
         });
         html += `</tr>\n`;
@@ -269,7 +237,7 @@ function generate() {
     document.getElementById("output").value = html;
 }
 
-// Initial setup
+// Khởi tạo mặc định
 addColumn();
 addColumn();
 addRow("FAILED", "#ff5252", "✖");
