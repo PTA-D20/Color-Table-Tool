@@ -1,1 +1,3 @@
-# test_pick_color
+# Color-Table-Tool
+
+readme
