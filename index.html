@@ -2,40 +2,54 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Color Table Tool - Merge Hidden Cells</title>
+<title>Color Table Tool - Default No Icon</title>
 <style>
-  body { font-family: sans-serif; padding: 20px; background-color: #f8f9fa; }
-  table { border-collapse: collapse; margin-top: 10px; text-align: center; font-size: 13px; background: white; }
-  td, th { border: 1px solid #ccc; padding: 8px; text-align: center; min-width: 140px; }
+  body { font-family: 'Roboto', sans-serif; padding: 20px; background-color: #f8f9fa; }
+  table { border-collapse: collapse; margin-top: 10px; text-align: center; font-size: 14px; background: white; }
+  td, th { border: 1px solid #ccc; padding: 12px; text-align: center; min-width: 160px; }
   
-  .theme-controls { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
-  .alpha-box { display: flex; align-items: center; gap: 5px; border-left: 2px solid #eee; padding-left: 15px; }
+  .theme-controls { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd; }
+  .control-group { display: flex; align-items: center; gap: 8px; border-left: 2px solid #eee; padding-left: 15px; }
+  .control-group:first-child { border-left: none; padding-left: 0; }
   
   .picker { width: 30px; height: 30px; padding: 0; border: none; cursor: pointer; background: none; vertical-align: middle; }
-  .hex-input, .label-input { width: 90%; padding: 4px; border: 1px solid #ccc; border-radius: 3px; text-align: center; }
+  .hex-input, .label-input { width: 90%; padding: 6px; border: 1px solid #ccc; border-radius: 3px; text-align: center; }
   .label-input { font-weight: bold; background: #fffde7; }
   
-  .ticker-wrap { display: flex; align-items: center; gap: 4px; font-size: 11px; margin-top: 5px; color: #666; justify-content: center; }
+  /* Ticker styles */
+  .tickers-container { display: flex; flex-direction: column; align-items: flex-start; margin-top: 8px; gap: 4px; width: 100%; padding-left: 10%; }
+  .ticker-wrap { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #555; cursor: pointer; }
   .ticker-wrap input { cursor: pointer; margin: 0; }
 
+  .tippy-style {
+    font-weight: normal; 
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+  }
+
   .header-label { font-weight: bold; width: 80px; background: #f2f2f2; }
-  .preview-text { font-weight: bold; font-size: 14px; }
-  textarea { width: 100%; height: 200px; margin-top: 15px; font-family: monospace; padding: 10px; }
-  button { padding: 8px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; }
+  textarea { width: 100%; height: 200px; margin-top: 15px; font-family: monospace; padding: 10px; border: 1px solid #ccc; }
+  button { padding: 8px 15px; cursor: pointer; font-weight: bold; border-radius: 4px; border: 1px solid #ccc; transition: 0.2s; }
   .btn-gen { background: #27ae60; color: white; border: none; }
+  .btn-gen:hover { background: #219150; }
 </style>
 </head>
 <body>
 
 <div class="theme-controls">
-  <strong>Theme:</strong>
-  <input type="color" id="theme-picker" class="picker" value="#ffffff" oninput="syncTheme('picker')">
-  <input type="text" id="theme-hex" class="hex-input" style="width:70px" value="#ffffff" oninput="syncTheme('hex')">
+  <div class="control-group">
+    <strong>Theme:</strong>
+    <input type="color" id="theme-picker" class="picker" value="#2d2d2d" oninput="syncTheme('picker')">
+    <input type="text" id="theme-hex" class="hex-input" style="width:70px" value="#2d2d2d" oninput="syncTheme('hex')">
+  </div>
   
-  <div class="alpha-box">
+  <div class="control-group">
     <label>Alpha:</label>
-    <input type="range" id="theme-slider" min="0" max="1" step="0.01" value="1" oninput="syncTheme('slider')">
-    <input type="number" id="theme-alpha" style="width:50px" min="0" max="1" step="0.01" value="1" oninput="syncTheme('number')">
+    <input type="range" id="theme-slider" min="0" max="1" step="0.01" value="0.9" oninput="syncTheme('slider')">
+    <input type="number" id="theme-alpha" style="width:55px" min="0" max="1" step="0.01" value="0.9" oninput="syncTheme('number')">
   </div>
 
   <button onclick="addColumn()" style="margin-left: auto;">➕ Thêm cột</button> 
@@ -44,15 +58,15 @@
 
 <table id="tbl">
   <tr id="row-labels"><th class="header-label">TITLE</th></tr>
-  <tr id="row-red-input"><td rowspan="2" class="header-label" style="color:red">RED</td></tr>
+  <tr id="row-red-input"><td rowspan="2" class="header-label" style="color:#ff5252">FAILED</td></tr>
   <tr id="row-red-render"></tr>
-  <tr id="row-green-input"><td rowspan="2" class="header-label" style="color:green">GREEN</td></tr>
+  <tr id="row-green-input"><td rowspan="2" class="header-label" style="color:#23c466">SUCCESS</td></tr>
   <tr id="row-green-render"></tr>
-  <tr id="row-yellow-input"><td rowspan="2" class="header-label" style="color:#d4a017">YELLOW</td></tr>
+  <tr id="row-yellow-input"><td rowspan="2" class="header-label" style="color:#f3bf3d">INDICATOR</td></tr>
   <tr id="row-yellow-render"></tr>
 </table>
 
-<textarea id="output"></textarea>
+<textarea id="output" placeholder="Mã HTML snapshot..."></textarea>
 
 <script>
 function syncTheme(type) {
@@ -76,7 +90,12 @@ function addColumn() {
   tdLabel.innerHTML = `<input type="text" class="label-input" value="Label" oninput="render()">`;
   document.getElementById("row-labels").appendChild(tdLabel);
 
-  const groups = [{id:'red', c:'#ff4d4f'}, {id:'green', c:'#52c41a'}, {id:'yellow', c:'#fadb14'}];
+  const groups = [
+    {id:'red', c:'#ff5252', icon:'✖'}, 
+    {id:'green', c:'#23c466', icon:'✔'}, 
+    {id:'yellow', c:'#f3bf3d', icon:'●'}
+  ];
+
   groups.forEach(g => {
     const td = document.createElement("td");
     td.innerHTML = `
@@ -85,8 +104,12 @@ function addColumn() {
           <input type="color" class="picker" value="${g.c}" oninput="this.nextElementSibling.value=this.value; render()">
           <input type="text" class="hex-input" style="width:65px; font-size:11px;" value="${g.c}" oninput="render()">
         </div>
-        <label class="ticker-wrap"><input type="checkbox" class="is-special" onchange="render()"> Hidden </label>
+        <div class="tickers-container">
+          <label class="ticker-wrap"><input type="checkbox" class="is-special" onchange="render()"> Hidden</label>
+          <label class="ticker-wrap"><input type="checkbox" class="is-icon" onchange="render()"> Show Icon</label>
+        </div>
       </div>`;
+    td.dataset.icon = g.icon;
     document.getElementById(`row-${g.id}-input`).appendChild(td);
   });
   render();
@@ -94,7 +117,9 @@ function addColumn() {
 
 function render() {
   const theme = getThemeRgba();
-  ['red', 'green', 'yellow'].forEach(g => {
+  const groupIds = ['red', 'green', 'yellow'];
+  
+  groupIds.forEach(g => {
     const inputCells = document.querySelectorAll(`#row-${g}-input td:not(.header-label)`);
     const renderRow = document.getElementById(`row-${g}-render`);
     renderRow.innerHTML = "";
@@ -102,17 +127,23 @@ function render() {
     inputCells.forEach((cell) => {
       const hex = cell.querySelector('.hex-input').value;
       const isSpecial = cell.querySelector('.is-special').checked;
+      const showIcon = cell.querySelector('.is-icon').checked;
+      const icon = cell.dataset.icon;
       
-      // Cập nhật rowspan cho ô input màu nếu Hidden
+      const iconTicker = cell.querySelector('.is-icon').parentElement;
+      iconTicker.style.opacity = isSpecial ? "0.3" : "1";
+      cell.querySelector('.is-icon').disabled = isSpecial;
+
       cell.rowSpan = isSpecial ? 2 : 1;
 
       if (!isSpecial) {
         const td = document.createElement("td");
         td.style.background = theme;
-        td.innerHTML = `<span class="preview-text" style="color: ${hex}">Placeholder</span>`;
+        td.style.color = hex;
+        const iconSpan = showIcon ? `<span>${icon}</span>` : "";
+        td.innerHTML = `<div class="tippy-style">${iconSpan} <span>Placeholder</span></div>`;
         renderRow.appendChild(td);
       }
-      // Nếu isSpecial thì không tạo ô TD ở hàng render nữa (vì ô trên đã chiếm chỗ)
     });
   });
 }
@@ -120,37 +151,42 @@ function render() {
 function generate() {
   const theme = getThemeRgba();
   const labels = document.querySelectorAll("#row-labels .label-input");
-  let html = `<table style="border-collapse:collapse; text-align:center; font-family:sans-serif;">\n`;
+  let html = `<table style="border-collapse:collapse; text-align:center; font-family:'Roboto', sans-serif;">\n`;
   
   html += `  <tr><td style="border:1px solid #ccc; padding:10px; font-weight:bold; background:#eee;">TITLE</td>`;
   labels.forEach(l => html += `<td style="border:1px solid #ccc; padding:10px; font-weight:bold; background:#fffde7;">${l.value}</td>`);
   html += `</tr>\n`;
 
-  const groups = [{l:'RED', c:'red', id:'red'}, {l:'GREEN', c:'green', id:'green'}, {l:'YELLOW', c:'#d4a017', id:'yellow'}];
+  const groups = [
+    {l:'FAILED', c:'#ff5252', id:'red', icon:'✖'}, 
+    {l:'SUCCESS', c:'#23c466', id:'green', icon:'✔'}, 
+    {l:'INDICATOR', c:'#f3bf3d', id:'yellow', icon:'●'}
+  ];
   
   groups.forEach(g => {
     const colorCells = document.querySelectorAll(`#row-${g.id}-input td:not(.header-label)`);
     
-    // Hàng 1
     html += `  <tr><td rowspan="2" style="border:1px solid #ccc; padding:10px; font-weight:bold; color:${g.c}; background:#f2f2f2;">${g.l}</td>`;
     colorCells.forEach(cell => {
       const hex = cell.querySelector('.hex-input').value;
       const isSpec = cell.querySelector('.is-special').checked;
       if(isSpec) {
-        html += `<td rowspan="2" style="border:1px solid #ccc; padding:10px; background:${theme}; color:#666;">không có thông tin</td>`;
+        html += `<td rowspan="2" style="border:1px solid #ccc; padding:10px; background:${theme}; color:white; font-size:14px;">không có thông tin</td>`;
       } else {
         html += `<td style="border:1px solid #ccc; padding:8px; font-size:11px; font-family:monospace;">${hex.toUpperCase()}</td>`;
       }
     });
     html += `</tr>\n`;
 
-    // Hàng 2
     html += `  <tr>`;
     colorCells.forEach(cell => {
       const hex = cell.querySelector('.hex-input').value;
       const isSpec = cell.querySelector('.is-special').checked;
+      const showIcon = cell.querySelector('.is-icon').checked;
       if(!isSpec) {
-        html += `<td style="border:1px solid #ccc; padding:12px; background:${theme};"><span style="color:${hex}; font-weight:bold; font-size:14px;">Placeholder</span></td>`;
+        html += `<td style="border:1px solid #ccc; padding:12px; background:${theme}; color:${hex}; font-size:14px;">`;
+        if (showIcon) html += `<span style="margin-right:8px;">${g.icon}</span>`;
+        html += `<b>Placeholder</b></td>`;
       }
     });
     html += `</tr>\n`;
